@@ -173,11 +173,10 @@
     <script>
         function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-            const formattedDate = now.toLocaleDateString('en-US', options).toUpperCase(); // Formato in inglese
+            const options = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
+            const formattedDate = now.toLocaleDateString('en-US', options).toUpperCase(); // Formato in inglese con giorno/mese/anno
             const formattedTime = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            // Inserisce la virgola correttamente dopo il giorno della settimana solo se non è già presente
             const formattedDateWithComma = formattedDate.replace(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)(?= )/, '$1,');
             
             document.getElementById('datetime').innerText = `${formattedDateWithComma} - ${formattedTime}`;
@@ -188,7 +187,6 @@
 
     <!-- Script per il testo scorrevole -->
     <script>
-        // Testo scorrevole in diverse lingue
         const messages = [
             "WELCOME TO CAMERI PLANT",
             "BENVENUTI NELLO STABILIMENTO DI CAMERI",
@@ -200,16 +198,12 @@
         let currentMessageIndex = 0;
         const marqueeElement = document.getElementById('marquee');
 
-        // Funzione per aggiornare il testo scorrevole
         function updateMarquee() {
             marqueeElement.innerText = messages[currentMessageIndex];
             currentMessageIndex = (currentMessageIndex + 1) % messages.length;
         }
 
-        // Inizializza il testo scorrevole
         updateMarquee();
-
-        // Cambia messaggio alla fine dell'animazione
         marqueeElement.addEventListener('animationiteration', updateMarquee);
     </script>
 
@@ -227,19 +221,17 @@
                 currentIndex++;
                 slides[currentIndex].classList.add('active');
             } else {
-                // Nasconde lo slider e aspetta 10 secondi
                 slides[currentIndex].classList.remove('active');
                 setTimeout(() => {
-                    currentIndex = 0; // Torna alla prima slide
-                    slides[currentIndex].classList.add('active'); // Mostra la prima slide
+                    currentIndex = 0;
+                    slides[currentIndex].classList.add('active');
                 }, waitTime);
             }
         }
 
-        // Inizializza il primo slide come attivo
         slides[currentIndex].classList.add('active');
-        // Imposta l'intervallo per cambiare slide
         setInterval(showNextSlide, slideInterval);
     </script>
 </body>
 </html>
+
