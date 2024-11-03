@@ -128,6 +128,17 @@
         .slides img.active {
             opacity: 1;
         }
+
+        /* Fullscreen styling */
+        .slider.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.8); /* Background scuro */
+        }
     </style>
 </head>
 <body>
@@ -166,6 +177,19 @@
                 <img src="img9.jpg" alt="Slide 9">
                 <img src="img10.jpg" alt="Slide 10">
             </div>
+            <div id="escBtn" style="display:none; position:absolute; top:10px; right:10px; z-index: 1001;">
+                <button style="background-color: rgba(0, 0, 0, 0.5); font-size: 12px; opacity: 0.7; padding: 5px 10px; border-radius: 5px;">ESC</button>
+            </div>
+        </div>
+
+        <!-- Pulsanti di navigazione -->
+        <div style="position: absolute; bottom: 10px; left: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+                <button id="prevBtn" style="background-color: rgba(0, 0, 0, 0.5); font-size: 12px; opacity: 0.7; padding: 5px 10px; border-radius: 5px;">←</button>
+                <button id="playPauseBtn" style="background-color: rgba(0, 0, 0, 0.5); font-size: 12px; opacity: 0.7; padding: 5px 10px; border-radius: 5px;">PAUSE</button>
+                <button id="nextBtn" style="background-color: rgba(0, 0, 0, 0.5); font-size: 12px; opacity: 0.7; padding: 5px 10px;; border-radius: 5px">→</button>
+            </div>
+            <button id="fullscreenBtn" style="background-color: rgba(0, 0, 0, 0.5); font-size: 12px; opacity: 0.7; padding: 5px 10px;; border-radius: 5px">FULLSCREEN</button>
         </div>
     </div>
 
@@ -173,13 +197,16 @@
     <script>
         function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
-            const formattedDate = now.toLocaleDateString('en-US', options).toUpperCase(); // Formato in inglese con giorno/mese/anno
+            
+            // Giorno della settimana in inglese
+            const options = { weekday: 'long' };
+            const dayOfWeek = now.toLocaleDateString('en-US', options).toUpperCase();
+            
+            // Formattazione della data in DD/MM/YYYY
+            const formattedDate = now.toLocaleDateString('it-IT');
             const formattedTime = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            const formattedDateWithComma = formattedDate.replace(/^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)(?= )/, '$1,');
-            
-            document.getElementById('datetime').innerText = `${formattedDateWithComma} - ${formattedTime}`;
+            document.getElementById('datetime').innerText = `${dayOfWeek}, ${formattedDate} - ${formattedTime}`;
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
@@ -203,34 +230,87 @@
             currentMessageIndex = (currentMessageIndex + 1) % messages.length;
         }
 
+        setInterval(updateMarquee, 15000);
         updateMarquee();
-        marqueeElement.addEventListener('animationiteration', updateMarquee);
     </script>
 
-    <!-- Script per il slider -->
+    <!-- Script per lo slideshow -->
     <script>
         let currentIndex = 0;
         const slides = document.querySelectorAll('.slides img');
         const totalSlides = slides.length;
-        const slideInterval = 30000; // Cambia ogni 30 secondi
-        const waitTime = 10000; // Aspetta 10 secondi dopo l'ultima slide
+        const slideInterval = 30000; // Intervallo di 30 secondi
+        let waitTime = 10000; // Aspetta 10 secondi dopo l'ultima slide
+        let autoSlideInterval;
 
-        function showNextSlide() {
-            if (currentIndex < totalSlides - 1) {
-                slides[currentIndex].classList.remove('active');
-                currentIndex++;
-                slides[currentIndex].classList.add('active');
-            } else {
-                slides[currentIndex].classList.remove('active');
-                setTimeout(() => {
-                    currentIndex = 0;
-                    slides[currentIndex].classList.add('active');
-                }, waitTime);
-            }
+        function showSlide(index) {
+            slides[currentIndex].classList.remove('active');
+            currentIndex = (index + totalSlides) % totalSlides; // Assicura che l'indice sia sempre valido
+            slides[currentIndex].classList.add('active');
         }
 
-        slides[currentIndex].classList.add('active');
-        setInterval(showNextSlide, slideInterval);
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        function playSlides() {
+            nextSlide();
+            autoSlideInterval = setInterval(nextSlide, slideInterval);
+        }
+
+        function pauseSlides() {
+            clearInterval(autoSlideInterval);
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+        document.getElementById('playPauseBtn').addEventListener('click', function() {
+            if (this.innerText === 'PAUSE') {
+                pauseSlides();
+                this.innerText = 'PLAY';
+            } else {
+                playSlides();
+                this.innerText = 'PAUSE';
+            }
+        });
+
+        // Fullscreen
+        document.getElementById('fullscreenBtn').addEventListener('click', function() {
+            const slider = document.querySelector('.slider');
+            if (slider.requestFullscreen) {
+                slider.requestFullscreen();
+            } else if (slider.mozRequestFullScreen) { // Firefox
+                slider.mozRequestFullScreen();
+            } else if (slider.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                slider.webkitRequestFullscreen();
+            } else if (slider.msRequestFullscreen) { // IE/Edge
+                slider.msRequestFullscreen();
+            }
+            slider.classList.add('fullscreen');
+            document.getElementById('escBtn').style.display = 'block'; // Mostra il pulsante ESC
+        });
+
+        document.getElementById('escBtn').addEventListener('click', function() {
+            const slider = document.querySelector('.slider');
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+            slider.classList.remove('fullscreen');
+            this.style.display = 'none'; // Nascondi il pulsante ESC
+        });
+
+        // Avvia lo slideshow all'apertura della pagina
+        playSlides();
     </script>
 </body>
 </html>
