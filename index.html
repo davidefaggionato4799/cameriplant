@@ -159,7 +159,21 @@
         <div class="weather-widget">
             <a class="weatherwidget-io" href="https://forecast7.com/en/45d508d66/cameri/" data-label_1="CAMERI AIRPORT" data-label_2="WEATHER" data-font="Arial Black" data-icons="Climacons Animated" data-theme="pure" data-basecolor="rgba(0, 0, 0, 0.2)" data-textcolor="#ffffff">CAMERI AIRPORT WEATHER</a>
             <script>
-                !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                function loadWeatherWidget() {
+                    // Rimuove lo script precedente se esiste
+                    const oldScript = document.getElementById('weatherwidget-io-js');
+                    if (oldScript) oldScript.remove();
+
+                    // Aggiunge di nuovo il widget per forzare l'aggiornamento
+                    const newScript = document.createElement('script');
+                    newScript.id = 'weatherwidget-io-js';
+                    newScript.src = 'https://weatherwidget.io/js/widget.min.js';
+                    document.getElementsByTagName('head')[0].appendChild(newScript);
+                }
+
+                // Carica il widget inizialmente e imposta l'intervallo per aggiornarlo ogni 30 minuti
+                loadWeatherWidget();
+                setInterval(loadWeatherWidget, 1800000); // 30 minuti in millisecondi
             </script>
         </div>
 
